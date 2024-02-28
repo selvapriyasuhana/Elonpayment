@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout</title>
+</head>
+<body>
+    <h1>Checkout</h1>
+    <form id="checkout-form" action="/api/create-order" method="POST">
+        <label for="amount">Amount:</label>
+        <input type="text" id="amount" name="amount" required><br><br>
+        <!-- Add more fields for customer information if needed -->
+        <button type="submit">Pay Now</button>
+    </form>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        // Client-side JavaScript to handle form submission
+        document.getElementById('checkout-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+
+            const formData = new FormData(this); // Get form data
+            const requestBody = Object.fromEntries(formData.entries()); // Convert form data to JSON object
+
+            // Send a POST request to the server with the form data to create the order
+            try {
+                const response = await fetch('/api/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    const order = await response.json();
+                    // Call function to open Razorpay checkout modal with order details
+                    openRazorpayCheckout(order);
+                } else {
+                    console.error('Failed to create order:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error occurred:', error);
+            }
+        });
+
+        // Function to open Razorpay checkout modal with order details
+        function openRazorpayCheckout(order) {
+            var options = {
+                key: 'rzp_test_wwf1XCSitCvS3T',
+                amount: order.amount,
+                currency: 'INR',
+                name: 'Elon',
+                description: 'Purchase Description',
+                order_id: order.id,
+                handler: function(response) {
+                    console.log('Payment ID:', response.razorpay_payment_id);
+                    console.log('Signature:', response.razorpay_signature);
+                    // Send payment ID, order ID, and signature to the server to capture the payment
+                    capturePayment(response.razorpay_payment_id, order.id, response.razorpay_signature);
+                },
+                prefill: {
+                    name: 'selvapriya',
+                    email: 'priyaecs95@gmail.com',
+                    contact: '+918825788173'
+                },
+                theme: {
+                    color: '#3399cc'
+                }
+            };
+            var rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        // Function to send payment ID, order ID, and signature to the server to capture the payment
+        async function capturePayment(paymentId, orderId, paymentSignature) {
+            try {
+                const response = await fetch('/api/capture-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ payment_id: paymentId, order_id: orderId, payment_signature: paymentSignature })
+                });
+
+                if (response.ok) {
+                    console.log('Payment captured successfully:', await response.json());
+                    // Redirect to success page or show success message
+                } else {
+                    console.error('Failed to capture payment:', response.statusText);
+                    // Show error message to the user
+                }
+            } catch (error) {
+                console.error('Error occurred while capturing payment:', error);
+            }
+        }
+    </script>
+</body>
+</html>
