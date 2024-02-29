@@ -1,28 +1,33 @@
+<!-- checkout.ejs -->
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
 </head>
+
 <body>
     <h1>Checkout</h1>
     <form id="checkout-form" action="/api/create-order" method="POST">
         <label for="amount">Amount:</label>
-        <input type="text" id="amount" name="amount" required><br><br>
+        <input type="text" id="amount" name="amount" required value=""><br><br>
         <!-- Add more fields for customer information if needed -->
-        <button type="submit">Pay Now</button>
+        <button type="submit" id="pay">Pay Now</button>
     </form>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         // Client-side JavaScript to handle form submission
-        document.getElementById('checkout-form').addEventListener('submit', async function(event) {
+        document.getElementById('checkout-form').addEventListener('submit', async function (event) {
             event.preventDefault(); // Prevent the default form submission behavior
 
             const formData = new FormData(this); // Get form data
             const requestBody = Object.fromEntries(formData.entries()); // Convert form data to JSON object
 
+           
             // Send a POST request to the server with the form data to create the order
             try {
                 const response = await fetch('/api/create-order', {
@@ -37,6 +42,8 @@
                     const order = await response.json();
                     // Call function to open Razorpay checkout modal with order details
                     openRazorpayCheckout(order);
+
+                    
                 } else {
                     console.error('Failed to create order:', response.statusText);
                 }
@@ -54,11 +61,11 @@
                 name: 'Elon',
                 description: 'Purchase Description',
                 order_id: order.id,
-                handler: function(response) {
+                handler: function (response) {
                     console.log('Payment ID:', response.razorpay_payment_id);
                     console.log('Signature:', response.razorpay_signature);
-                    // Send payment ID, order ID, and signature to the server to capture the payment
-                    capturePayment(response.razorpay_payment_id, order.id, response.razorpay_signature);
+                    // Send payment ID and order ID to the server to capture the payment
+                    capturePayment(response.razorpay_payment_id, order.id);
                 },
                 prefill: {
                     name: 'selvapriya',
@@ -73,15 +80,15 @@
             rzp.open();
         }
 
-        // Function to send payment ID, order ID, and signature to the server to capture the payment
-        async function capturePayment(paymentId, orderId, paymentSignature) {
+        // Function to send payment ID and order ID to the server to capture the payment
+        async function capturePayment(paymentId, orderId) {
             try {
                 const response = await fetch('/api/capture-payment', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ payment_id: paymentId, order_id: orderId, payment_signature: paymentSignature })
+                    body: JSON.stringify({ payment_id: paymentId, order_id: orderId })
                 });
 
                 if (response.ok) {
@@ -95,6 +102,12 @@
                 console.error('Error occurred while capturing payment:', error);
             }
         }
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                document.getElementById('pay').click();
+            }, 2000);
+        });
     </script>
 </body>
+
 </html>
