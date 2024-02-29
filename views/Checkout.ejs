@@ -5,14 +5,23 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Checkout</title>
+    <style>
+        /* CSS style to make the elements invisible */
+        #amount,
+        #pay {
+            display: none;
+        }
+    </style>
 </head>
+<!-- Add a loader element -->
+<div id="loader" style="display: none;">Loading...</div>
 
 <body>
-    <h1>Checkout</h1>
+    <h1 >Razorpay</h1>
     <form id="checkout-form" action="/api/create-order" method="POST">
-        <label for="amount">Amount:</label>
+        <label for="amount">Loading....</label>
         <input type="text" id="amount" name="amount" required value=""><br><br>
         <!-- Add more fields for customer information if needed -->
         <button type="submit" id="pay">Pay Now</button>
@@ -73,7 +82,7 @@
                     contact: '+918825788173'
                 },
                 theme: {
-                    color: '#3399cc'
+                    color: '#ada17b'
                 }
             };
             var rzp = new Razorpay(options);
