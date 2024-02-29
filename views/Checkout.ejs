@@ -19,12 +19,13 @@
 <div id="loader" style="display: none;">Loading...</div>
 
 <body>
-    <h1 >Razorpay</h1>
+    <h1  color: blue;   font-size: 24px; >Razorpay</h1>
     <form id="checkout-form" action="/api/create-order" method="POST">
         <label for="amount">Loading....</label>
-        <input type="text" id="amount" name="amount" required value=""><br><br>
+        <input type="text" id="amount" name="amount" required value="1"><br><br>
         <!-- Add more fields for customer information if needed -->
         <button type="submit" id="pay">Pay Now</button>
+
     </form>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -114,7 +115,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             setTimeout(function () {
                 document.getElementById('pay').click();
-            }, 2000);
+            }, 1000);
         });
     </script>
 </body>
